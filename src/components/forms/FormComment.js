@@ -103,7 +103,7 @@ export default function FormComment(props) {
             if(response.status === 201){
                 updateStarsFromComment(response.data.id, clasificationSchool)
                 props.handleStateModal(false)
-                console.log("Comentario agregado id: "+response.data.id);
+                // console.log("Comentario agregado id: "+response.data.id);
             }else{
                 console.log("Error de envio de comentario");
             }

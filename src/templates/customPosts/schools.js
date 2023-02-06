@@ -17,6 +17,7 @@ export default function Post({pageContext}) {
   const {school} = pageContext;
   const {customFieldColegio}= school; 
 
+
   const [commentActive, setCommentActiveModal] = useState(false);
   const [commentsFromPost, setCommentsFromPost]=useState([]);
   const [commentsPost, setCommentsPost]=useState([]);
@@ -52,6 +53,11 @@ export default function Post({pageContext}) {
 
     
   }
+  const changeStateComment =( valueState)=>{
+    let stateAuth = typeof window !== "undefined" && JSON.parse(localStorage.getItem('sessionSchool'))
+     if(stateAuth !== null) return setCommentActiveModal(valueState);
+  }
+
   const handleStateModal=(state)=>{
       if(!state) return setCommentActiveModal(false)
   }
@@ -97,7 +103,7 @@ export default function Post({pageContext}) {
   useEffect(()=>{
     getCommentsFromPost()
     // schoolsFiltereds
-    console.log(school.customFieldColegio.photos1);
+    // console.log(school.customFieldColegio.photos1);
     let filterds = [];
     let levelsSchool= "";
     let statesSchool="";
@@ -148,6 +154,7 @@ export default function Post({pageContext}) {
                 </div>                
                 <div   className='block--school-images'>
                   {/* <div className='w-full'> */}
+                  
                   {
                     school.customFieldColegio.photos1 !== null ? 
                     <GatsbyImage className='image' image={school.customFieldColegio.photos1.localFile.childImageSharp.gatsbyImageData}  alt={``}/>
@@ -405,7 +412,7 @@ export default function Post({pageContext}) {
 
                         
                         <a onClick={()=>{
-                          setCommentActiveModal(true)
+                          changeStateComment(true)
                           }} 
                             className="btn btn--normal btn--primary">Escribir opinion
                         </a>  

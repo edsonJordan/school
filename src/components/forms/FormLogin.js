@@ -96,7 +96,7 @@ const  FormLogin = () => {
             <label htmlFor="userName" >Usuario</label>
             <input type="text"  onChange={(e)=>setUserName({...userName, error:false, value:e.target.value})} id="userName" value={userName.value} placeholder='Ingrese su cuenta' />
             {
-                            userName.error && <div dangerouslySetInnerHTML={{__html: userName.message}}></div>
+                            userName.error && <div className="text--danger" dangerouslySetInnerHTML={{__html: userName.message}}></div>
             }
           </div>
 
@@ -107,7 +107,7 @@ const  FormLogin = () => {
               <img className="password--hiden btn" src={eye_icon} alt="A dinosaur" placeholder="blurred" layout="fixed" />
             </div>
             {
-                          password.error && <div dangerouslySetInnerHTML={{__html: password.message}}></div>
+                          password.error && <div className="text--danger" dangerouslySetInnerHTML={{__html: password.message}}></div>
             }
           </div>  
             {/* wxi5hIIU8I4^d@Q13( */}

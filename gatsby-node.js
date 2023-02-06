@@ -87,11 +87,10 @@ exports.createPages = async ({ graphql, actions }) => {
           photos2 {
             altText
             localFile{
-              childImageSharp{
-                
+              childImageSharp{                
                 gatsbyImageData(
                   width: 1000
-                  height:96
+                  height: 200
                   
                   placeholder: BLURRED
                   formats: [AUTO, WEBP, AVIF]
@@ -101,7 +100,7 @@ exports.createPages = async ({ graphql, actions }) => {
             gatsbyImage(
               breakpoints: 10
               placeholder: DOMINANT_COLOR
-              height: 10
+              height: 200
               width: 10
               formats: JPG
             )
@@ -109,11 +108,10 @@ exports.createPages = async ({ graphql, actions }) => {
           photos3 {
             altText
             localFile{
-              childImageSharp{
-                
+              childImageSharp{                
                 gatsbyImageData(
                   width: 1000
-                  height:96
+                  height:200
                   placeholder: BLURRED
                   formats: [AUTO, WEBP, AVIF]
                 )
@@ -122,7 +120,7 @@ exports.createPages = async ({ graphql, actions }) => {
             gatsbyImage(
               breakpoints: 10
               placeholder: DOMINANT_COLOR
-              height: 10
+              height: 200
               width: 10
               formats: JPG
             )
@@ -133,7 +131,7 @@ exports.createPages = async ({ graphql, actions }) => {
               childImageSharp{                
                 gatsbyImageData(
                   width: 1000
-                  height:96
+                  height:200
                   placeholder: BLURRED
                   formats: [AUTO, WEBP, AVIF]
                 )
@@ -142,7 +140,7 @@ exports.createPages = async ({ graphql, actions }) => {
             gatsbyImage(
               breakpoints: 10
               placeholder: DOMINANT_COLOR
-              height: 10
+              height: 200
               width: 10
               formats: JPG
             )

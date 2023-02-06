@@ -80,9 +80,8 @@ export default function MejoresEscuelas() {
       { value: 'punctuation', name:"orderFilter", label: 'Mejor Puntuación' },
       { value: 'favorites', name:"orderFilter", label: 'favoritos' },
   ];
-  const getSchoolsFavorite = ()=>{
-    if (stateAuth === null) return setFavorites([]);
-    // console.log(stateAuth);  
+  const getSchoolsFavorite = (filters)=>{
+    if (stateAuth === null) return setFavorites([]);    
     fetch(`${process.env.WP_URL_REST}/apischool/v1/favorites/${stateAuth.id_user}`,{
       headers: {
         'Content-Type': 'application/json',
@@ -92,8 +91,11 @@ export default function MejoresEscuelas() {
     .then(response => response.json())
     .then(
       (data) => {
-        setFavorites(data.map((element)=> {return [element.id_post]}).reduce((acc, id_post)=>{ return acc.concat(parseInt(id_post)) },[]));    
-       console.log(favorites);
+        setFavorites(data.map((element)=> {return [element.id_post]}).reduce((acc, id_post)=>{ return acc.concat(parseInt(id_post)) },[])); 
+        const favoritesSchool = data.map((element)=> {return [element.id_post]}).reduce((acc, id_post)=>{ return acc.concat(parseInt(id_post)) },[]);   
+        
+        
+        getSchoolWithFilter(filters, favoritesSchool)
       } 
     )
     .catch((error)=>console.log(error));  
@@ -105,18 +107,17 @@ export default function MejoresEscuelas() {
   const resultRanking=(listNodesFromComments)=>{
       if(listNodesFromComments.length===0)  return 3.5;
       const numValuesFromStars =  listNodesFromComments.reduce((acumulator,currentValue)=>{
-            if(currentValue.stars === 1) acumulator[0][1]++
-            if(currentValue.stars === 2) acumulator[1][2]++
-            if(currentValue.stars === 3) acumulator[2][3]++
-            if(currentValue.stars === 4) acumulator[3][4]++
-            if(currentValue.stars === 5) acumulator[4][5]++
+            if(parseInt(currentValue.stars) === 1) acumulator[0][1]++
+            if(parseInt(currentValue.stars) === 2) acumulator[1][2]++
+            if(parseInt(currentValue.stars) === 3) acumulator[2][3]++
+            if(parseInt(currentValue.stars) === 4) acumulator[3][4]++
+            if(parseInt(currentValue.stars) === 5) acumulator[4][5]++
             return acumulator},[{1:0},{2:0},{3:0},{4:0},{5:0}])
     .map((element, index, array)=>{  return  element[(index+1)]*(index+1)})
         return ((numValuesFromStars[0]+numValuesFromStars[1]+numValuesFromStars[2]+numValuesFromStars[3]+numValuesFromStars[4])/listNodesFromComments.length).toFixed(1);
     }
 
-    const getSchoolWithFilter= async (filterProp)=>{      
-        
+    const getSchoolWithFilter= async (filterProp, favoritesSchool = null)=>{     
         // return console.log(`${process.env.WP_URL_REST}/wp/v2/colegio${props.type}`);
           fetch(`${process.env.WP_URL_REST}/wp/v2/colegio?${filterProp}&_embed`,{
             headers: {
@@ -125,30 +126,53 @@ export default function MejoresEscuelas() {
             }           
           })
           .then(response=>response.json())
-          .then((data)=>{
-            // console.log(favoritesData);
-           
-            setDataIsReady(data.map((element)=>{
-              return {
-                  id_post: element.id,       
-                  levels:element['_embedded']['wp:term'][1].length !== 0 ? element['_embedded']['wp:term'][1].map(element=>element.name): [],
-                  nameSchool:element.title.rendered,
-                  opinion:"buen trato economico",
-                  phone:element.acf.phone,
-                  price: element.acf.price,
-                  slug:element.slug,
-                  typeSchool:element['_embedded']['wp:term'][2].length !== 0 ? element['_embedded']['wp:term'][2].map(element=>element.name): [],
-                  stars:"3.6",          
-                 // stars:resultRanking(element.comments.nodes),
-                  ubication:null,
-                  web:element.acf.web,
-                  whatsapp:element.acf.whatsapp,
-                  lat:element.acf.latitude,
-                  long:element.acf.longitude,
-                  isFavorite:false
-              }
-            }))
-
+          .then((data)=>{ 
+            //setSchools(schools.map((element)=>{ return schoolsFavorites.includes(element.id_post)? {...element, isFavorite:true}:{...element}}))      
+            if(stateAuth !== null){
+              setDataIsReady(data.map((element)=>{
+                return {
+                    id_post: element.id,       
+                    levels:element['_embedded']['wp:term'][1].length !== 0 ? element['_embedded']['wp:term'][1].map(element=>element.name): [],
+                    nameSchool:element.title.rendered,
+                    opinion:"buen trato economico",
+                    phone:element.acf.phone,
+                    price: element.acf.price,
+                    slug:element.slug,
+                    typeSchool:element['_embedded']['wp:term'][2].length !== 0 ? element['_embedded']['wp:term'][2].map(element=>element.name): [],
+                    // stars:"3.6",          
+                   stars:resultRanking(element.comments),
+                    ubication:null,
+                    web:element.acf.web,
+                    whatsapp:element.acf.whatsapp,
+                    lat:element.acf.latitude,
+                    long:element.acf.longitude,
+                    isFavorite:false
+                }
+              }).map((element)=>{ return favoritesSchool.includes(element.id_post)? {...element, isFavorite:true}:{...element}})
+              )  
+            }else{
+              setDataIsReady(data.map((element)=>{
+                return {
+                    id_post: element.id,       
+                    levels:element['_embedded']['wp:term'][1].length !== 0 ? element['_embedded']['wp:term'][1].map(element=>element.name): [],
+                    nameSchool:element.title.rendered,
+                    opinion:"buen trato economico",
+                    phone:element.acf.phone,
+                    price: element.acf.price,
+                    slug:element.slug,
+                    typeSchool:element['_embedded']['wp:term'][2].length !== 0 ? element['_embedded']['wp:term'][2].map(element=>element.name): [],
+                    stars:"3.6",          
+                   // stars:resultRanking(element.comments.nodes),
+                    ubication:null,
+                    web:element.acf.web,
+                    whatsapp:element.acf.whatsapp,
+                    lat:element.acf.latitude,
+                    long:element.acf.longitude,
+                    isFavorite:false
+                }
+              }))
+            }
+            
 
             // console.log("Cargo datos"); 
           })
@@ -176,14 +200,12 @@ export default function MejoresEscuelas() {
         let levelsSchool= "";
         let statesSchool="";
         let typeSchools="";
-
         if(localSearch.level.value !== null){
           levelsSchool="levels="+ localSearch.level.value
               filterds.push(levelsSchool)
               paramUrltoSearch+=` ${localSearch.level.description}  ${localSearch.level.label}`
               urlToSearch+=`${localSearch.level.description}-${localSearch.level.name}-`;
-        }
-        
+        }        
         if(localSearch.type.value !== null){
           typeSchools="typeSchool="+localSearch.type.value
             filterds.push(typeSchools)
@@ -198,101 +220,20 @@ export default function MejoresEscuelas() {
         }
         // console.log(urlToSearch);
         setTitleFilters(paramUrltoSearch)
-        // window.history.replaceState({}, `${urlToSearch}`, `${process.env.SCHOOL_URL}mejores-escuelas-${urlToSearch}`);
-
-        
-        // setParamsSearchSchool(filterds.join('&'))
-        // console.log(filterds.join('&'));
         return filterds.join('&');
     } 
     
 
 
   useEffect( ()=>{        
-    getSchoolsFavorite() 
-      async function fetchFavorites() {
-        if (stateAuth === null) return setFavorites([]);
-    // console.log(stateAuth);  
-          const favoritesSchool = await fetch(`${process.env.WP_URL_REST}/apischool/v1/favorites/${stateAuth.id_user}`,{
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization':`Bearer ${stateAuth.token}`
-            }
-          })
-          const data = await favoritesSchool.json();
-          /* .then(response => response.json())
-          .then(
-            (data) => {
-              setFavorites(data.map((element)=> {return [element.id_post]}).reduce((acc, id_post)=>{ return acc.concat(parseInt(id_post)) },[]));    
-            console.log(favorites);
-            } 
-          )
-          .catch((error)=>console.log(error));     */      
-          return data.map((element)=> {return [element.id_post]}).reduce((acc, id_post)=>{ return acc.concat(parseInt(id_post)) },[]);
-          // setFavorites(favoritesSchool);
-      }
-      // const favoritesData =  fetchFavorites();
-      
-      
-
-      async function getSchoolsWithFilters(filterProp){
-        const schools = await fetch(`${process.env.WP_URL_REST}/wp/v2/colegio?${filterProp}&_embed`,{
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',              
-          }           
-        })
-        const data = await schools.json();
-        return data.map((element)=>{
-          return {
-              id_post: element.id,       
-              levels:element['_embedded']['wp:term'][1].length !== 0 ? element['_embedded']['wp:term'][1].map(element=>element.name): [],
-              nameSchool:element.title.rendered,
-              opinion:"buen trato economico",
-              phone:element.acf.phone,
-              price: element.acf.price,
-              slug:element.slug,
-              typeSchool:element['_embedded']['wp:term'][2].length !== 0 ? element['_embedded']['wp:term'][2].map(element=>element.name): [],
-              stars:"3.6",          
-             // stars:resultRanking(element.comments.nodes),
-              ubication:null,
-              web:element.acf.web,
-              whatsapp:element.acf.whatsapp,
-              lat:element.acf.latitude,
-              long:element.acf.longitude,
-              isFavorite:false
-          }
-        })
-
-      }
-
-
-      const filters = getLocalParamsSearch();
-
-       getSchoolWithFilter(filters)
-      // const schoolsData =  getSchoolsWithFilters(filters);
-      // setSchools(schools.map((element)=>{
-      //             return {
-      //                 id_post: element.databaseId,       
-      //                 levels: element.levelsSchools.nodes.length > 0 ? element.levelsSchools.nodes.map(levelNode=>levelNode.name) : [],
-      //                 nameSchool:element.title,
-      //                 opinion:"buen trato economico",
-      //                 phone:element.customFieldColegio.phone,
-      //                 price: element.customFieldColegio.price,
-      //                 slug:element.slug,
-      //                 // stars:"3.6",
-      //                 stars:resultRanking(element.comments.nodes),
-      //                 typeSchool:element.typeSchools.nodes.length > 0 ? element.typeSchools.nodes.map(typeNode=>typeNode.name) : [],
-      //                 ubication:null,
-      //                 web:element.customFieldColegio.web,
-      //                 whatsapp:element.customFieldColegio.whatsapp,
-      //                 lat:element.customFieldColegio.latitude,
-      //                 long:element.customFieldColegio.longitude,
-      //                 isFavorite:false
-      //             }
-      //         }))
-          setTypeOptions([{ value: "", name:"typeFilter", label: 'Todos los registros' }, ...typeOptions])
-          setLevelOptions([ { value: "", name:"levelFilter", label: 'Todos los registros' },...levelOptions])
+    const filters = getLocalParamsSearch();
+    if(stateAuth !== null){     
+      getSchoolsFavorite(filters)       
+    }else{
+      getSchoolWithFilter(filters) 
+    }
+      setTypeOptions([{ value: "", name:"typeFilter", label: 'Todos los registros' }, ...typeOptions])
+      setLevelOptions([ { value: "", name:"levelFilter", label: 'Todos los registros' },...levelOptions])
          
   },[])
  
@@ -473,7 +414,9 @@ return (
                       <div className='grid  sm:grid-cols-1 tablet:grid-cols-2 laptop:grid-cols-3 desktop:grid-cols-4 gap-4	carousel--container' >
                           {dataIsReady.map((element,index) =>{   
                               return element.isFavorite !== undefined && <CardVertical  key={index}  isFavorite={element.isFavorite} setIdPost={setIdPost} school={element}/>; 
-                              })}
+                          })
+                          }
+
                       </div>
                   </>
                   

@@ -15,20 +15,15 @@ import Map, { Marker,
     GeolocateControl } from "react-map-gl";
     import "mapbox-gl/dist/mapbox-gl.css";
 
-
-
-
-
-
 const  FormRegisterSchool = ()=> {
     /* Status Global */
     const stateAuth =  useContext(GlobalStateContext)
     const dispatch =  useContext(GlobalDispatchContext)
 
-
      /* States of inputs */
      const [nameSchool, setNameSchool] = useState("");     
      const [typeSchool, setTypeSchool] = useState({value:null, error:false, message:""});
+     const [stateSubmit, setStateSubmit] = useState('inicial')
      const [price, setPrice] = useState(0);
      const [levelSchool, setLevelSchool] = useState([]);
      const [descriptionSchool, setDescriptionSchool] = useState("");
@@ -45,9 +40,6 @@ const  FormRegisterSchool = ()=> {
      const [instagram, setInstagram] = useState("");
      const [direction, setDirection] = useState("");
 
-
-
-   
 
     const [countries, setCountries] = useState([]);
     const [states, setStates] = useState([]);
@@ -164,6 +156,7 @@ const  FormRegisterSchool = ()=> {
     }
     useEffect(() => {
         // console.log(State.getStatesOfCountry())
+        // setStateSubmit('inicial')
         const dataCountries = Country.getAllCountries();
         const countries = dataCountries.map(({isoCode, name})=> { return {id: isoCode , value:name, label:name}})      
         setCountries(countries.filter((element)=> element.value === "Mexico"));
@@ -248,6 +241,12 @@ const  FormRegisterSchool = ()=> {
             handleErrorImages(imagesForm, imagesForm)
             return false;
         }
+        setStateSubmit('cargando')
+       
+
+
+
+
 
         let formDataThumbnail = new FormData()
         let fileThumbnail = thumbnailUpload.current.files[0];
@@ -309,12 +308,15 @@ const  FormRegisterSchool = ()=> {
         };
           
         return axios.post(`${process.env.WP_URL_REST}/wp/v2/colegio`, 
-                JSON.stringify(data),{headers: {
+                JSON.stringify(data)
+                ,
+                {
+                    headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${stateAuth.data.token}` 
                     }
                 }).then((response)=>{
-                    console.log("Colegio agregado");
+                    setStateSubmit('terminado')
                     window.location.reload(false);
                 }).catch((error)=>{
                     console.log(error);
@@ -380,7 +382,7 @@ const  FormRegisterSchool = ()=> {
                         <Select className="create-select" onChange={(data)=>setTypeSchool({value:data.value, error:false, message:""})} 
                         options={optionTypeSchools}/>         
                         {
-                            typeSchool.error && <p>{typeSchool.message}</p>
+                            typeSchool.error && <p className="text-global-danger-500" >{typeSchool.message}</p>
                         }           
                     </div>
                     <div className="form__block form__block--checkboxs">  
@@ -514,7 +516,7 @@ const  FormRegisterSchool = ()=> {
                         <label className="form-block__title" htmlFor="states" >Estado</label>
                         <Select id="states" onChange={(data)=>handleSelectState(data)} defaultValue=""  ref={stateRef} options={states}  />
                         {
-                            pickState.error && <p>{pickState.message}</p>
+                            pickState.error && <p className="text-global-danger-500" >{pickState.message}</p>
                         }
                     </div>     
                     <div className="form__block">
@@ -600,7 +602,7 @@ const  FormRegisterSchool = ()=> {
                         </label>
                         <input ref={thumbnailUpload}  type="file"   className="input__thumbnail" name="thumbnail" id="thumbnail"  accept="image/*"onChange={handleImagesForm}  />
                         {
-                            imagesForm.thumbnail.error && <p>{imagesForm.thumbnail.message}</p>
+                            imagesForm.thumbnail.error && <p className="text-global-danger-500" >{imagesForm.thumbnail.message}</p>
                         }
                     </div>
                     <div className="form__block">
@@ -618,7 +620,7 @@ const  FormRegisterSchool = ()=> {
                         </label>
                         <input ref={facadeUpload} type="file" className="input__thumbnail" name="facade" id="facade"  accept="image/*"onChange={handleImagesForm}  />
                         {
-                            imagesForm.facade.error && <p>{imagesForm.facade.message}</p>
+                            imagesForm.facade.error && <p className="text-global-danger-500" >{imagesForm.facade.message}</p>
                         }
                     </div>
                     <div className="form__block">
@@ -636,7 +638,7 @@ const  FormRegisterSchool = ()=> {
                         </label>
                         <input ref={instalationUpload}  type="file" className="input__thumbnail" name="instalation" id="instalation"  accept="image/*"onChange={handleImagesForm}  />
                         {
-                            imagesForm.instalation.error && <p>{imagesForm.instalation.message}</p>
+                            imagesForm.instalation.error && <p className="text-global-danger-500" >{imagesForm.instalation.message}</p>
                         }
                     </div>
                     <div className="form__block">
@@ -654,14 +656,26 @@ const  FormRegisterSchool = ()=> {
                         </label>
                         <input ref={othersUpload} type="file" className="input__thumbnail" name="others" id="others"  accept="image/*"onChange={handleImagesForm}  />
                         {
-                            imagesForm.others.error  && <p>{imagesForm.others.message}</p>
+                            imagesForm.others.error  && <p className="text-global-danger-500" >{imagesForm.others.message}</p>
                         }
                     </div>
                 </div>
                 <div className="content__blocks-form  pt-6">
                     <div className="form__block--btn">
-                        <input className="btn rounded-md btn--primary max-w-fit h-9" type="submit" value="Agregar" />
-                        <a className=" btn rounded-md btn__ghost--primary-two max-w-fit h-9 ">Cancelar</a>
+                       
+                    {(stateSubmit === 'inicial' || stateSubmit === 'terminado') && (
+                            <>
+                            <input className="btn rounded-md btn--primary max-w-fit h-9" type="submit" value="Agregar" />
+                            <a className=" btn rounded-md btn__ghost--primary-two max-w-fit h-9 ">Cancelar</a>
+                            </>
+                        )}
+                    {stateSubmit === 'cargando' && (
+                            <>
+                            <input disabled={true} className="btn rounded-md btn--primary max-w-fit h-9" type="submit" value="Cargando..." />
+                            <a className=" btn rounded-md btn__ghost--primary-two max-w-fit h-9 ">Cancelar</a>
+                            </>
+                        )}
+                       
                     </div>
                 </div>     
             </form>

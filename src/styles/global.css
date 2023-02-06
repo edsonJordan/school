@@ -982,7 +982,7 @@ span[class$=indicatorSeparator]{
     max-width: 104px;
 }
 .image--thumbnail{
-    @apply max-w-full !important;
+    @apply max-w-full h-24 !important;
 }
 .block--school-images .content__images--thumbnails .thumbnail::after{
     content: attr(data-title);
@@ -1597,7 +1597,7 @@ span[class$=indicatorSeparator]{
         }
         
         .image--thumbnail{
-            @apply w-full !important;
+            @apply w-full h-24 !important ;
         }
         .block--others .list.buttons{
             @apply justify-start;

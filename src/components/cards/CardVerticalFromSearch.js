@@ -39,7 +39,7 @@ export default function CardVerticalFromSearch(props) {
             </div>
         </div>
         <div className='card__body' >
-            <h3 className='title' dangerouslySetInnerHTML={{__html:props.school.nameSchool}} >
+            <h3 className='title ' dangerouslySetInnerHTML={{__html:props.school.nameSchool}} >
                 
             </h3>
             <div className='items' >

@@ -23,7 +23,23 @@ const Header= ()=>{
     
   }
   useEffect(()=>{
-    // console.log(stateAuth.data.token);
+    // console.log(stateAuth);
+    if (!stateAuth.isLogin) return 
+    const token = stateAuth.data.token;    
+    if (token) {
+      const jwtPayload = JSON.parse(atob(token.split(".")[1]));
+      const expirationTime = jwtPayload.exp;
+      const currentTime = new Date().getTime() / 1000;
+
+      if (currentTime > expirationTime) {
+        window !== 'undefined' && localStorage.removeItem('sessionSchool')
+        window.location = '/'
+      } else {
+        // console.log("token valido");
+      }
+    } else {
+      // console.log("No existe tokken");
+    }
     // console.log(stateAuth);
   },[stateAuth])
 
